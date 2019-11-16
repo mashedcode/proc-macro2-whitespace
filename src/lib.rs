@@ -56,7 +56,7 @@ impl IntoCodeHelper for TokenStream {
                         Delimiter::Bracket => '[',
                         Delimiter::None => 'Ø',
                     };
-                    code.push_str(&delim_open.to_string());
+                    code.push(delim_open);
                     group
                         .stream()
                         .into_code_with_original_whitespace(code, cursor);
@@ -77,7 +77,7 @@ impl IntoCodeHelper for TokenStream {
                         Delimiter::Bracket => ']',
                         Delimiter::None => 'Ø',
                     };
-                    code.push_str(&delim_close.to_string());
+                    code.push(delim_close);
                 }
                 _ => {
                     fill_whitespace(cursor, &span.start(), code);
