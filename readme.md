@@ -2,12 +2,14 @@
 
 ## Usage
 
-```
+```toml
 [dependescies]
 proc-macro2-whitespace = { git = "https://github.com/mashedcode/proc-macro2-whitespace" }
 ```
 
-```
+### Example
+
+```rust
 use proc_macro2_whitespace::IntoCode;
 
 let code = "pub fn foo() {\n    let foo = 'a';\n\n    let bar = 'b';\n}\n";
