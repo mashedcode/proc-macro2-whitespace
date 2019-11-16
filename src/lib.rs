@@ -6,6 +6,15 @@ use rustfmt_nightly as rustfmt;
 use std::mem;
 use std::result::Result;
 
+/// # Example
+///
+/// ```
+/// use proc_macro2_whitespace::IntoCode;
+///
+/// let code = "pub fn foo() {\n    let foo = 'a';\n\n    let bar = 'b';\n}\n";
+/// let stream = code.parse::<proc_macro2::TokenStream>().unwrap();
+/// assert_eq!(stream.into_code().unwrap(), code);
+/// ```
 pub trait IntoCode {
     fn into_code(self) -> Result<String, rustfmt::ErrorKind>;
 }
@@ -105,17 +114,5 @@ fn fill_whitespace(prev: &LineColumn, curr: &LineColumn, code: &mut String) {
     while whitespace.column > 0 {
         code.push(' ');
         whitespace.column -= 1;
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_preserve_whitespace() {
-        let code = "pub fn foo() {\n    let foo = 'a';\n\n    let bar = 'b';\n}\n";
-        let stream = code.parse::<TokenStream>().unwrap();
-        assert_eq!(stream.into_code().unwrap(), code);
     }
 }
