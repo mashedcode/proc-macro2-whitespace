@@ -3,6 +3,9 @@ name = "proc-macro2-whitespace"
 version = "0.1.0"
 authors = ["mash"]
 edition = "2018"
+license = "MIT OR Apache-2.0"
+description = "TokenStream to source code while preserving white-space"
+repository = "https://github.com/mashedcode/proc-macro2-whitespace"
 
 [dependencies]
 proc-macro2 = { version = "1.0.6", features = ["span-locations"] }
