@@ -1,0 +1,9 @@
+[package]
+name = "proc-macro2-whitespace"
+version = "0.1.0"
+authors = ["mash"]
+edition = "2018"
+
+[dependencies]
+proc-macro2 = { version = "1.0.6", features = ["span-locations"] }
+rustfmt-nightly = "1.4.10"
