@@ -74,7 +74,9 @@ impl IntoCodeHelper for TokenStream {
                         cursor,
                         &{
                             let mut end = span.end();
-                            end.column -= 1;
+                            if end.column > 0 {
+                                end.column -= 1;
+                            }
                             end
                         },
                         code,
@@ -88,8 +90,18 @@ impl IntoCodeHelper for TokenStream {
                     };
                     code.push(delim_close);
                 }
-                _ => {
-                    fill_whitespace(cursor, &span.start(), code);
+                token => {
+                    let start = &span.start();
+                    if let TokenTree::Ident(_) = token {
+                        if cursor.line == 1
+                            && cursor.column == 0
+                            && start.line == 1
+                            && start.column == 0
+                        {
+                            code.push(' ');
+                        }
+                    }
+                    fill_whitespace(cursor, start, code);
                     code.push_str(&token.to_string());
                     mem::swap(cursor, &mut span.end());
                 }
@@ -99,6 +111,12 @@ impl IntoCodeHelper for TokenStream {
 }
 
 fn fill_whitespace(prev: &LineColumn, curr: &LineColumn, code: &mut String) {
+    if prev.line == 1 && prev.column == 0 && curr.line == 1 && curr.column == 0
+        || prev.line > curr.line
+        || (prev.line == curr.line && prev.column > curr.column)
+    {
+        return;
+    }
     let mut whitespace = LineColumn {
         line: curr.line - prev.line,
         column: if curr.line > prev.line {
