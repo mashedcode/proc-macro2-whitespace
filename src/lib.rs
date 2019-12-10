@@ -10,9 +10,18 @@ use std::result::Result;
 ///
 /// ```
 /// use proc_macro2_whitespace::IntoCode;
+/// use quote::quote;
 ///
 /// let code = "pub fn foo() {\n    let foo = 'a';\n\n    let bar = 'b';\n}\n";
 /// let stream = code.parse::<proc_macro2::TokenStream>().unwrap();
+/// assert_eq!(stream.into_code().unwrap(), code);
+///
+/// let code = "pub fn nop(arg: &'static str) -> &'static str {\n    arg\n}\n";
+/// let stream = quote! {
+///     pub fn nop(arg: &'static str) -> &'static str {
+///         arg
+///     }
+/// };
 /// assert_eq!(stream.into_code().unwrap(), code);
 /// ```
 pub trait IntoCode {
@@ -47,6 +56,7 @@ impl IntoCode for TokenStream {
 
 impl IntoCodeHelper for TokenStream {
     fn into_code_with_original_whitespace(self, code: &mut String, cursor: &mut LineColumn) {
+        let mut needs_space = false;
         for token in self.into_iter() {
             let span = token.span();
             match token {
@@ -89,18 +99,23 @@ impl IntoCodeHelper for TokenStream {
                         Delimiter::None => 'Ø',
                     };
                     code.push(delim_close);
+                    needs_space = false;
                 }
                 token => {
                     let start = &span.start();
                     if let TokenTree::Ident(_) = token {
-                        if cursor.line == 1
+                        if needs_space
+                            && cursor.line == 1
                             && cursor.column == 0
                             && start.line == 1
                             && start.column == 0
                         {
                             code.push(' ');
                         }
-                    }
+                        needs_space = true;
+                    } else {
+                        needs_space = false;
+                    };
                     fill_whitespace(cursor, start, code);
                     code.push_str(&token.to_string());
                     mem::swap(cursor, &mut span.end());
