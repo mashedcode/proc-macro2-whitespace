@@ -105,10 +105,8 @@ impl IntoCodeHelper for TokenStream {
                     let start = &span.start();
                     if let TokenTree::Ident(_) = token {
                         if needs_space
-                            && cursor.line == 1
-                            && cursor.column == 0
-                            && start.line == 1
-                            && start.column == 0
+                            && ((cursor.line == 1 && cursor.column == 0)
+                                || (start.line == 1 && start.column == 0))
                         {
                             code.push(' ');
                         }
@@ -126,7 +124,8 @@ impl IntoCodeHelper for TokenStream {
 }
 
 fn fill_whitespace(prev: &LineColumn, curr: &LineColumn, code: &mut String) {
-    if prev.line == 1 && prev.column == 0 && curr.line == 1 && curr.column == 0
+    if prev.line == 1 && prev.column == 0
+        || curr.line == 1 && curr.column == 0
         || prev.line > curr.line
         || (prev.line == curr.line && prev.column > curr.column)
     {
