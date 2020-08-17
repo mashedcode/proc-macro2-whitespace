@@ -25,28 +25,26 @@ use std::result::Result;
 /// assert_eq!(stream.into_code().unwrap(), code);
 /// ```
 pub trait IntoCode {
-    fn into_code(self) -> Result<String, rustfmt::ErrorKind>;
+    fn into_code(self) -> Result<String, rustfmt::result::OperationError>;
 }
 
 trait IntoCodeHelper {
     fn into_code_with_original_whitespace(self, code: &mut String, cursor: &mut LineColumn);
 }
 
-fn rustfmt(code: String) -> Result<String, rustfmt::ErrorKind> {
+fn rustfmt(code: String) -> Result<String, rustfmt::result::OperationError> {
     let mut config = rustfmt::Config::default();
     config.set().edition(rustfmt::Edition::Edition2018);
-    config.set().emit_mode(rustfmt::EmitMode::Stdout);
-    config.set().verbose(rustfmt::Verbosity::Quiet);
-    let mut out = Vec::with_capacity(code.len());
-    {
-        let mut session = rustfmt::Session::new(config, Some(&mut out));
-        session.format(rustfmt::Input::Text(code))?;
-    }
-    Ok(std::string::String::from_utf8(out).unwrap())
+    let report = rustfmt::format(rustfmt::Input::Text(code), &config, rustfmt::OperationSetting {
+        recursive: false,
+        verbosity: rustfmt::emitter::Verbosity::Quiet,
+    })?;
+    let (_, result) = report.format_result().next().unwrap();
+    Ok(result.formatted_text().to_owned())
 }
 
 impl IntoCode for TokenStream {
-    fn into_code(self) -> Result<String, rustfmt::ErrorKind> {
+    fn into_code(self) -> Result<String, rustfmt::result::OperationError> {
         let mut cursor = LineColumn { line: 1, column: 0 };
         let mut code = String::new();
         self.into_code_with_original_whitespace(&mut code, &mut cursor);

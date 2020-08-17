@@ -9,7 +9,7 @@ repository = "https://github.com/mashedcode/proc-macro2-whitespace"
 
 [dependencies]
 proc-macro2 = { version = "1.0.19", features = ["span-locations"] }
-rustfmt-nightly = "1.4.19"
+rustfmt-nightly = { git = "https://github.com/rust-lang/rustfmt" }
 
 [dev-dependencies]
 quote = "1.0.7"
